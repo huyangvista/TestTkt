@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="TestTkt:jar2">
+    <output-path>$PROJECT_DIR$/out/artifacts/TestTkt_jar2</output-path>
+    <root id="archive" name="TestTkt.jar">
+      <element id="module-output" name="TestTkt" />
+    </root>
+  </artifact>
+</component>

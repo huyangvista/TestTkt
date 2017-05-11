@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_testtkt" default="compile.module.testtkt">
+  <dirname property="module.testtkt.basedir" file="${ant.file.module_testtkt}"/>
+  
+  <property name="module.jdk.home.testtkt" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.testtkt" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.testtkt" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.testtkt" value="-encoding UTF-8 -source 8 -target 1.8 ${compiler.args}"/>
+  
+  <property name="testtkt.output.dir" value="${module.testtkt.basedir}/out/production/TestTkt"/>
+  <property name="testtkt.testoutput.dir" value="${module.testtkt.basedir}/out/test/TestTkt"/>
+  
+  <path id="testtkt.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="testtkt.module.production.classpath">
+    <path refid="${module.jdk.classpath.testtkt}"/>
+    <path refid="library.sqljdbc41.classpath"/>
+  </path>
+  
+  <path id="testtkt.runtime.production.module.classpath">
+    <pathelement location="${testtkt.output.dir}"/>
+    <path refid="library.sqljdbc41.classpath"/>
+  </path>
+  
+  <path id="testtkt.module.classpath">
+    <path refid="${module.jdk.classpath.testtkt}"/>
+    <pathelement location="${testtkt.output.dir}"/>
+    <path refid="library.sqljdbc41.classpath"/>
+  </path>
+  
+  <path id="testtkt.runtime.module.classpath">
+    <pathelement location="${testtkt.testoutput.dir}"/>
+    <pathelement location="${testtkt.output.dir}"/>
+    <path refid="library.sqljdbc41.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.testtkt">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.testtkt">
+    <patternset refid="excluded.from.module.testtkt"/>
+  </patternset>
+  
+  <path id="testtkt.module.sourcepath">
+    <dirset dir="${module.testtkt.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.testtkt" depends="compile.module.testtkt.production,compile.module.testtkt.tests" description="Compile module TestTkt"/>
+  
+  <target name="compile.module.testtkt.production" depends="register.custom.compilers" description="Compile module TestTkt; production classes">
+    <mkdir dir="${testtkt.output.dir}"/>
+    <javac2 destdir="${testtkt.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.testtkt}/javac">
+      <compilerarg line="${compiler.args.testtkt}"/>
+      <bootclasspath refid="testtkt.module.bootclasspath"/>
+      <classpath refid="testtkt.module.production.classpath"/>
+      <src refid="testtkt.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.testtkt"/>
+    </javac2>
+    
+    <copy todir="${testtkt.output.dir}">
+      <fileset dir="${module.testtkt.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.testtkt.tests" depends="register.custom.compilers,compile.module.testtkt.production" description="compile module TestTkt; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.testtkt" description="cleanup module">
+    <delete dir="${testtkt.output.dir}"/>
+    <delete dir="${testtkt.testoutput.dir}"/>
+  </target>
+</project>
