@@ -25,8 +25,8 @@ public class Conned {
     public Conned(Socket socket) {
         this.socket = socket;
         try {
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream(),"utf-8"));
+            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(),"utf-8"));
             thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -35,14 +35,19 @@ public class Conned {
                             String ins = in.readLine();
                             if(ins != null){
                                 if(receive != null){
-                                    receive.invoke(ins);
+                                    receive.invoke(ins + "\r\n");
                                 }
                                 //System.out.println(tag + ins);
                             }else{
                                 Thread.sleep(1000);
                             }
                         } catch (Exception e) {
+                            try {   //等待处理连接强制丢失
+                                close();
+                                Thread.sleep(1000);
+                            } catch (Exception e1) {
 
+                            }
                         }
                     }
                 }

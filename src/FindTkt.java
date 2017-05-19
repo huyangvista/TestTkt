@@ -34,7 +34,7 @@ public class FindTkt {
     private static final String t_rtime = "TIME";
 
     //获取到的参数值
-    private String TicketNumber = "";
+    public String TicketNumber = "";
     private String grossrefund_amount = "";
     private String refundtickettax = "";  //calc  refundtickettax = realrefundticketfee + dedu - grossrefund_amoun
     private String ticketstatus = "R";  //def
@@ -98,72 +98,79 @@ public class FindTkt {
     }
 
     public String find(String fileNamf) {
-        this.fileNamf = fileNamf;
-        List<String> sqls = new ArrayList<String>();
+        try {
+            this.fileNamf = fileNamf;
+            List<String> sqls = new ArrayList<String>();
 
-        List<File> list = find(new File("D:\\dpdata"));
-        sqls.add("-- 搜索 -> " + fileNamf);
-        sqls.add("-- 找到第：" + list.size() + "个文件 ");
-        String text = "";
-        if (list.size() > 0) {
-            File file = list.get(0);
-            sqls.add("-- 解析文件：" + file.getName());
-            text = FileOperate.readTxt(file.getPath());
-        }
+            List<File> list = find(new File("D:\\dpdata"));
+            sqls.add("-- 搜索 -> " + fileNamf);
+            sqls.add("-- 快速找到：" + list.size() + "个文件（如果是多个文件的话可能不全）");
+            String text = "";
+            if (list.size() > 0) {
+                File file = list.get(0);
+                sqls.add("-- 解析文件：" + file.getName());
+                text = FileOperate.readTxt(file.getPath());
+            }
 
-        // String tag = "<TIME>000</TIME> sadasd001222fgsdfg<TIME>000</TIME>sdfasdfasdfa";
+            // String tag = "<TIME>000</TIME> sadasd001222fgsdfg<TIME>000</TIME>sdfasdfasdfa";
 
-        grossrefund_amount = getTag(text, t_grossrefund_amount);
-        dedu = getTag(text, t_dedu);
-        realrefundticketfee = getTag(text, t_realrefundticketfee);
-        rfnb = getTag(text, t_rfnb);
-        rtime = getTag(text, t_rtime);
-        TicketNumber = getTag(text, t_TicketNumber);
-        String r = getTag(text, "TicketStatus");
-        sqls.add("-- 票状态 " + r);
+            grossrefund_amount = getTag(text, t_grossrefund_amount);
+            dedu = getTag(text, t_dedu);
+            realrefundticketfee = getTag(text, t_realrefundticketfee);
+            rfnb = getTag(text, t_rfnb);
+            rtime = getTag(text, t_rtime);
+            TicketNumber = getTag(text, t_TicketNumber);
+            String r = getTag(text, "TicketStatus");
+            sqls.add("-- 票号 " + TicketNumber);
+            sqls.add("-- 票状态 " + r);
 
 
-        double dGrossrefund_amoun = 0;
-        double dDedu = 0;
-        double dRealrefundticketfee = 0;
-        double dRefundtickettax = 0;
-        if (isNumber(grossrefund_amount)) {
-            dGrossrefund_amoun = Double.parseDouble(grossrefund_amount);
-        }
-        if (isNumber(dedu)) {
-            dDedu = Double.parseDouble(dedu);
-        }
-        if (isNumber(realrefundticketfee)) {
-            dRealrefundticketfee = Double.parseDouble(realrefundticketfee) / 100;
-            realrefundticketfee = dRealrefundticketfee + "0";
-        }
-        dRefundtickettax = dRealrefundticketfee + dDedu - dGrossrefund_amoun;
-        refundtickettax = dRefundtickettax + "0";
+            double dGrossrefund_amoun = 0;
+            double dDedu = 0;
+            double dRealrefundticketfee = 0;
+            double dRefundtickettax = 0;
+            if (isNumber(grossrefund_amount)) {
+                dGrossrefund_amoun = Double.parseDouble(grossrefund_amount);
+            }
+            if (isNumber(dedu)) {
+                dDedu = Double.parseDouble(dedu);
+            }
+            if (isNumber(realrefundticketfee)) {
+                dRealrefundticketfee = Double.parseDouble(realrefundticketfee) / 100;
+                realrefundticketfee = dRealrefundticketfee + "";
+            }
+            dRefundtickettax = dRealrefundticketfee + dDedu - dGrossrefund_amoun;
+            refundtickettax = dRefundtickettax + "";
 
-        rtime = rtime.substring(0, 10) + " " + rtime.substring(11, 19);
+            rtime = rtime.substring(0, 10) + " " + rtime.substring(11, 19);
 
-        if (!r.equals("r") && !r.equals("R")) {
-            System.err.println("--  票状态不是退票状态。");
+            if (!r.equals("r") && !r.equals("R")) {
+                System.err.println("--  票状态不是退票状态。");
+                sqls.add("--  【【票状态不是退票状态。】】");
+                tag_r = false;
+            } else {
+                tag_r = true;
+            }
+
+            sqls.add("-- 按最后找到的标签值,生成语句： ");
+            sqls.add("");
+            sqls.add(sql_grossrefund_amount = getUpdate(TicketNumber, f_grossrefund_amount, grossrefund_amount));
+            sqls.add(sql_refundtickettax = getUpdate(TicketNumber, f_refundtickettax, refundtickettax));
+            sqls.add(sql_ticketstatus = getUpdate(TicketNumber, f_ticketstatus, ticketstatus));
+            sqls.add(sql_dedu = getUpdate(TicketNumber, f_dedu, dedu));
+            sqls.add(sql_realrefundticketfee = getUpdate(TicketNumber, f_realrefundticketfee, realrefundticketfee));
+            sqls.add(sql_rfnb = getUpdate(TicketNumber, f_rfnb, rfnb));
+            sqls.add(sql_rtime = getUpdate(TicketNumber, f_rtime, rtime));
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < sqls.size(); i++) {
+                sb.append(sqls.get(i));
+                sb.append("\r\n");
+            }
+            return sb.toString();
+        } catch (Exception e) {
             tag_r = false;
-        } else {
-            tag_r = true;
+            return "解析文件异常";
         }
-
-        sqls.add("-- 按最后找到的标签值,生成语句： ");
-        sqls.add("");
-        sqls.add(sql_grossrefund_amount = getUpdate(TicketNumber, f_grossrefund_amount, grossrefund_amount));
-        sqls.add(sql_refundtickettax = getUpdate(TicketNumber, f_refundtickettax, refundtickettax));
-        sqls.add(sql_ticketstatus = getUpdate(TicketNumber, f_ticketstatus, ticketstatus));
-        sqls.add(sql_dedu = getUpdate(TicketNumber, f_dedu, dedu));
-        sqls.add(sql_realrefundticketfee = getUpdate(TicketNumber, f_realrefundticketfee, realrefundticketfee));
-        sqls.add(sql_rfnb = getUpdate(TicketNumber, f_rfnb, rfnb));
-        sqls.add(sql_rtime = getUpdate(TicketNumber, f_rtime, rtime));
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < sqls.size(); i++) {
-            sb.append(sqls.get(i));
-            sb.append("\r\n");
-        }
-        return sb.toString();
     }
 
 

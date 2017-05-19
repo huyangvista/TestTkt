@@ -19,7 +19,6 @@ public class Server {
     private Conned.IReceive receive;
 
 
-
     public Server() {
         this("127.0.0.1", 61234);
     }
@@ -56,9 +55,14 @@ public class Server {
                 Socket clientSocket = serverSocket.accept();
                 Conned conned = new Conned(clientSocket);
                 conned.tag = "服务器使用";
-                conned.setReceive(receive);
+                conned.setReceive(getReceive(conned));
                 listConned.add(conned);
             } catch (Exception e) {
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException e1) {
+//                    e1.printStackTrace();
+//                }
                 break;
             }
 
@@ -68,7 +72,7 @@ public class Server {
     public void Close() {
         try {
             flag = false;
-            for (int i = listConned.size() -1; i >= 0; i--) {
+            for (int i = listConned.size() - 1; i >= 0; i--) {
                 listConned.get(i).close();
             }
             if (serverSocket != null) serverSocket.close();
@@ -86,11 +90,16 @@ public class Server {
     public void setListConned(List<Conned> listConned) {
         this.listConned = listConned;
     }
-    public Conned.IReceive getReceive() {
+
+    /**
+     *     重写此方法可以为用户独立设置侦听
+     */
+    public Conned.IReceive getReceive(Conned conned) {
         return receive;
     }
 
     public void setReceive(Conned.IReceive receive) {
         this.receive = receive;
     }
+
 }

@@ -3,7 +3,7 @@ package vdll.data.dbc;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
-/**
+/** libs/sqljdbc41.jar
  * Created by Hocean on 2017/5/11.
  */
 public class SQLServer {

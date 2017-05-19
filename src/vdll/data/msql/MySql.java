@@ -1,9 +1,6 @@
 package vdll.data.msql;
 
-import vdll.data.dbc.DBCN;
-import vdll.data.dbc.DBCP;
-import vdll.data.dbc.DBProp;
-import vdll.data.dbc.IDB;
+import vdll.data.dbc.*;
 
 import java.sql.*;
 import java.util.*;
@@ -78,7 +75,8 @@ public class MySql {
 
     //0
     public MySql() {
-
+        //conn = DBCN.open();
+        conn = SQLServer.open();
     }
 
     public MySql(Connection conn) {
